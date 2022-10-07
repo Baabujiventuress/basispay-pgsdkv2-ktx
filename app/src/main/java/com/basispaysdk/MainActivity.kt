@@ -1,42 +1,22 @@
-# BasisPay PaymentGateWay-Android KIT
-Basispay PG SDK_v2 - Android Kotlin X
-BasisPay Android Payment Gateway kit for developers
+package com.basispaysdk
 
-## INTRODUCTION
-This document describes the steps for integrating Basispay online payment gateway Android kit.This payment gateway performs the online payment transactions with less user effort. It receives the payment details as input and handles the payment flow. Finally returns the payment response to the user. User has to import the framework manually into their project for using it
-
-## Add the JitPack repository to your build file
-Step 1. Add the JitPack repository to your build file
-```
-allprojects {
-		repositories {
-			...
-			maven { url 'https://jitpack.io' }
-		}
-	}
-```
-Step 2. Add the dependency
-```
-dependencies {
-	        implementation 'com.github.Baabujiventuress:basispay-pgsdkv2-ktx:Tag'
-	}
-
-```
-
-## Code Explanation
-
-Make sure you have the below permissions in your manifest file:
-```
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-
-```
+import android.content.Intent
+import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.basispaypg.BasisPayPGConstants
 import com.basispaypg.BasisPayPaymentInitializer
 import com.basispaypg.BasisPayPaymentParams
+import org.json.JSONException
+import org.json.JSONObject
 
-```
- val pgPaymentParams = BasisPayPaymentParams()
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val pgPaymentParams = BasisPayPaymentParams()
         pgPaymentParams.setApiKey("YOUR_API_KEY") //required field(*)
         pgPaymentParams.setSecureHash("YOUR_SECURE_HASH") //required field(*)
         pgPaymentParams.setOrderReference("YOUR_REFERENCE_NO") //required field(*)
@@ -57,20 +37,14 @@ import com.basispaypg.BasisPayPaymentParams
         pgPaymentParams.setDeliveryCity("XXXX");
         pgPaymentParams.setDeliveryRegion("XXXX")
         pgPaymentParams.setDeliveryCountry("XXX")
-   
-```      
-Initailize the com.basispaypg.BasisPayPaymentInitializer class with payment parameters and initiate the payment:
-```
-val pgPaymentInitializer =
+
+        val pgPaymentInitializer =
             BasisPayPaymentInitializer(pgPaymentParams, this@MainActivity,
                 "YOUR_RETURN_URL")
         pgPaymentInitializer.initiatePaymentProcess()
+    }
 
-```
-## Payment Response
-To receive the json response, override the onActivityResult() using the REQUEST_CODE and PAYMENT_RESPONSE variables from com.basispaypg.BasisPayPaymentParams class
-```
- override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == BasisPayPGConstants.REQUEST_CODE) {
@@ -100,5 +74,4 @@ To receive the json response, override the onActivityResult() using the REQUEST_
             }
         }
     }
-
-```
+}
