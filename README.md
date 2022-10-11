@@ -6,18 +6,19 @@ BasisPay Android Payment Gateway kit for developers
 This document describes the steps for integrating Basispay online payment gateway Android kit.This payment gateway performs the online payment transactions with less user effort. It receives the payment details as input and handles the payment flow. Finally returns the payment response to the user. User has to import the framework manually into their project for using it
 
 ## Add the JitPack repository to your build file
-Step 1. Add the JitPack repository to your build file
+Step 1. Add the JitPack repository to your settings.gradle file
 ```
-allprojects {
+dependencyResolutionManagement {
 		repositories {
 			...
 			maven { url 'https://jitpack.io' }
 		}
 	}
 ```
-Step 2. Add the dependency
+Step 2. Add the dependency in app module build.gradle file
 ```
 dependencies {
+			//Tag replace to latest version (ex:- 1.0.0)
 	        implementation 'com.github.Baabujiventuress:basispay-pgsdkv2-ktx:Tag'
 	}
 
@@ -31,10 +32,14 @@ Make sure you have the below permissions in your manifest file:
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
 ```
+Check the imports in payment activity
+```
 import com.basispaypg.BasisPayPGConstants
 import com.basispaypg.BasisPayPaymentInitializer
 import com.basispaypg.BasisPayPaymentParams
 
+```
+Make sure you have the below payment params in your payment activity class file:
 ```
  val pgPaymentParams = BasisPayPaymentParams()
         pgPaymentParams.setApiKey("YOUR_API_KEY") //required field(*)
