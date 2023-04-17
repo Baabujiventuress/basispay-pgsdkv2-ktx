@@ -1,11 +1,9 @@
 package com.basispaypg
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
@@ -36,8 +34,6 @@ class BasisPayPaymentActivity : AppCompatActivity() {
         val postPaymentRequestParams = this.intent.getStringExtra(BasisPayPGConstants.POST_PARAMS)
         val returnUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_RETURN_URL)
         val paymentUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_URL)
-        println("ReturnUrl===$returnUrl")
-        println("Params===$postPaymentRequestParams")
 
         try {
             webView!!.webViewClient = object : WebViewClient() {
@@ -54,11 +50,8 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                                     .toTypedArray()
                             val mapValue: Map<String, String> =
                                 this@BasisPayPaymentActivity.getQueryMap(s[1])
-                            println(mapValue["?ref"])
-                            println(mapValue["success"])
                             referenceNo = mapValue["?ref"]
                             success = mapValue["success"]
-                            println("referenceNo==$referenceNo")
                         }
                     }
                 }
@@ -71,8 +64,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                         val pgResponse = JSONObject()
                         if (url.equals(returnUrl, ignoreCase = true)) {
                             try {
-                                pgResponse.put("status", "success")
-                                pgResponse.put("payment_response", referenceNo)
+                                pgResponse.put("referenceNumber", referenceNo)
                                 pgResponse.put("success", success)
                                 val paymentResponseCallBackIntent = Intent()
                                 paymentResponseCallBackIntent.putExtra(
