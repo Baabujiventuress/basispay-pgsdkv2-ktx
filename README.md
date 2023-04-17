@@ -90,8 +90,7 @@ To receive the json response, override the onActivityResult() using the REQUEST_
                     } else {
                         val response = JSONObject(paymentResponse)
                         Log.d("Res", response.toString())
-                        val status = response.getString("status")
-                        val referenceNo = response.getString("payment_response")
+                        val referenceNo = response.getString("referenceNumber")
                         val success = response.getBoolean("success")
 
                     }
