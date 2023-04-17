@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         val pgPaymentInitializer =
             BasisPayPaymentInitializer(pgPaymentParams, this@MainActivity,
-                "YOUR_RETURN_URL")
+                "YOUR_RETURN_URL","YOUR_PG_CONNECT_URL") //Ex: YOUR_PG_CONNECT_URL = https://basispay.in/
         pgPaymentInitializer.initiatePaymentProcess()
     }
 

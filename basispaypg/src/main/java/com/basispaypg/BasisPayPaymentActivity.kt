@@ -35,6 +35,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
 
         val postPaymentRequestParams = this.intent.getStringExtra(BasisPayPGConstants.POST_PARAMS)
         val returnUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_RETURN_URL)
+        val paymentUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_URL)
         println("ReturnUrl===$returnUrl")
         println("Params===$postPaymentRequestParams")
 
@@ -45,9 +46,11 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     pb!!.visibility = View.GONE
                     Log.i("log", "onPageFinished : $url")
                     runOnUiThread {
-                        if (url.contains("https://staging-connect.basispay.in/ui/response?")) {
+                        val checkUrl = paymentUrl+BasisPayPGConstants.CONTAIN_CHECK
+                        val appUrl = paymentUrl+BasisPayPGConstants.CONTAIN_RES
+                        if (url.contains(checkUrl)) {
                             val s =
-                                url.split("https://staging-connect.basispay.in/ui/response")
+                                url.split(appUrl)
                                     .toTypedArray()
                             val mapValue: Map<String, String> =
                                 this@BasisPayPaymentActivity.getQueryMap(s[1])
@@ -91,10 +94,6 @@ class BasisPayPaymentActivity : AppCompatActivity() {
             val webSettings = webView!!.settings
             webSettings.javaScriptEnabled = true
             webView!!.settings.domStorageEnabled = true
-            webView!!.addJavascriptInterface(
-                MyJavaScriptInterface(this as Activity),
-                "Android"
-            )
             webSettings.javaScriptCanOpenWindowsAutomatically = true
             webSettings.domStorageEnabled = true
             webView!!.clearHistory()
@@ -109,8 +108,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     return super.onJsAlert(view, url, message, result)
                 }
             }
-            val postUrl = "https://staging-connect.basispay.in/checkout"
-            //val postUrl = "https://connect.basispay.in/checkout";
+            val postUrl = paymentUrl+BasisPayPGConstants.END_POINT
             Log.d("postUrl", postUrl)
             Log.d("postParamValues", postPaymentRequestParams!!)
             webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
@@ -131,39 +129,6 @@ class BasisPayPaymentActivity : AppCompatActivity() {
             map[name] = value
         }
         return map
-    }
-
-    class MyJavaScriptInterface(private var mActivity: Activity) {
-        @JavascriptInterface
-        fun showHTML(html: String, url: String) {
-            Log.i("log", "showHTML : $url : $html")
-        }
-
-        @JavascriptInterface
-        fun paymentResponse(jsonStringResponse: String) {
-            try {
-                Log.d("TAG", "ResponseJson: $jsonStringResponse")
-                val pgResponse = JSONObject()
-                if (!TextUtils.isEmpty(jsonStringResponse) &&
-                    jsonStringResponse.contains("transaction_id")
-                ) {
-                    pgResponse.put("status", "success")
-                    pgResponse.put("payment_response", jsonStringResponse)
-                } else {
-                    pgResponse.put("status", "failed")
-                    pgResponse.put("error_message", "No payment response received !")
-                }
-                val paymentResponseCallBackIntent = Intent()
-                paymentResponseCallBackIntent.putExtra(
-                    BasisPayPGConstants.PAYMENT_RESPONSE,
-                    pgResponse.toString()
-                )
-                this.mActivity.setResult(-1, paymentResponseCallBackIntent)
-                this.mActivity.finish()
-            } catch (ex: java.lang.Exception) {
-                ex.printStackTrace()
-            }
-        }
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {

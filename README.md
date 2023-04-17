@@ -68,7 +68,7 @@ Initailize the com.basispaypg.BasisPayPaymentInitializer class with payment para
 ```
 val pgPaymentInitializer =
             BasisPayPaymentInitializer(pgPaymentParams, this@MainActivity,
-                "YOUR_RETURN_URL")
+                "YOUR_RETURN_URL","YOUR_PG_CONNECT_URL")
         pgPaymentInitializer.initiatePaymentProcess()
 
 ```
