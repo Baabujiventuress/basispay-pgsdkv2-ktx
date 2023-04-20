@@ -12,6 +12,4 @@ object BasisPayPGConstants {
     var STAGING_URL = "https://staging-connect.basispay.in"
     var PRODUCTION_URL = "https://connect.basispay.in"
     var IS_PRODUCTION = "IsProduction"
-
-    fun BasisPayPGConstants() {}
 }
