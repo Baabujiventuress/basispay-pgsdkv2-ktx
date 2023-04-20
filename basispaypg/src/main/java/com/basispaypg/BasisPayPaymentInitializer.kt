@@ -9,16 +9,16 @@ import java.io.StringWriter
 import java.util.*
 
 class BasisPayPaymentInitializer constructor(paymentParams:BasisPayPaymentParams, activity:Activity,
-                                             sReturnUrl:String, connectUrl:String){
+                                             sReturnUrl:String, isProduction:Boolean){
     private var context: Activity? = null
     private val params: HashMap<String?, String?> = LinkedHashMap<String?, String?>()
     private var returnUrl: String? = null
-    private var pgConnectUrl: String? = null
+    private var isPgMode: Boolean = false
 
     init {
         context = activity
         returnUrl = sReturnUrl
-        pgConnectUrl = connectUrl
+        isPgMode = isProduction
 
         if (TextUtils.isEmpty(paymentParams.getApiKey())) {
             throw RuntimeException("ApiKey missing")
@@ -138,7 +138,7 @@ class BasisPayPaymentInitializer constructor(paymentParams:BasisPayPaymentParams
     fun initiatePaymentProcess() {
         val startActivity = Intent(context, BasisPayPaymentActivity::class.java)
         startActivity.putExtra(BasisPayPGConstants.POST_PARAMS, buildParamsForPayment())
-        startActivity.putExtra(BasisPayPGConstants.PAYMENT_URL, pgConnectUrl)
+        startActivity.putExtra(BasisPayPGConstants.IS_PRODUCTION, isPgMode)
         startActivity.putExtra(BasisPayPGConstants.PAYMENT_RETURN_URL, returnUrl)
         startActivity.flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
         context!!.startActivityForResult(startActivity, BasisPayPGConstants.REQUEST_CODE)

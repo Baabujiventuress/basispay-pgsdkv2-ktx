@@ -33,7 +33,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
 
         val postPaymentRequestParams = this.intent.getStringExtra(BasisPayPGConstants.POST_PARAMS)
         val returnUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_RETURN_URL)
-        val paymentUrl = this.intent.getStringExtra(BasisPayPGConstants.PAYMENT_URL)
+        val isProduction = this.intent.getBooleanExtra(BasisPayPGConstants.IS_PRODUCTION, false)
 
         try {
             webView!!.webViewClient = object : WebViewClient() {
@@ -42,8 +42,15 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     pb!!.visibility = View.GONE
                     Log.i("log", "onPageFinished : $url")
                     runOnUiThread {
-                        val checkUrl = paymentUrl+BasisPayPGConstants.CONTAIN_CHECK
-                        val appUrl = paymentUrl+BasisPayPGConstants.CONTAIN_RES
+                        val checkUrl:String
+                        val appUrl:String
+                        if (isProduction) { //TODO LIVE MODE
+                            checkUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.CONTAIN_CHECK
+                            appUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.CONTAIN_RES
+                        } else { //TODO TEST MODE
+                            checkUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.CONTAIN_CHECK
+                            appUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.CONTAIN_RES
+                        }
                         if (url.contains(checkUrl)) {
                             val s =
                                 url.split(appUrl)
@@ -64,7 +71,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                         val pgResponse = JSONObject()
                         if (url.equals(returnUrl, ignoreCase = true)) {
                             try {
-                                pgResponse.put("referenceNumber", referenceNo)
+                                pgResponse.put("referenceNo", referenceNo)
                                 pgResponse.put("success", success)
                                 val paymentResponseCallBackIntent = Intent()
                                 paymentResponseCallBackIntent.putExtra(
@@ -100,10 +107,21 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     return super.onJsAlert(view, url, message, result)
                 }
             }
-            val postUrl = paymentUrl+BasisPayPGConstants.END_POINT
-            Log.d("postUrl", postUrl)
-            Log.d("postParamValues", postPaymentRequestParams!!)
-            webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
+            val postUrl: String?
+            if (isProduction) {
+                //TODO LIVE MODE
+                postUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.END_POINT
+                Log.d("Production PostUrl", postUrl)
+                Log.d("postParamValues", postPaymentRequestParams!!)
+                webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
+            } else {
+                //TODO TEST MODE
+                postUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.END_POINT
+                Log.d("Staging PostUrl", postUrl)
+                Log.d("postParamValues", postPaymentRequestParams!!)
+                webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
+            }
+
         } catch (var7: Exception) {
             val sw = StringWriter()
             var7.printStackTrace(PrintWriter(sw))
