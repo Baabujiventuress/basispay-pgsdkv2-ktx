@@ -1,8 +1,11 @@
 package com.basispaypg
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.http.SslError
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
@@ -15,6 +18,7 @@ import org.json.JSONException
 import org.json.JSONObject
 import java.io.PrintWriter
 import java.io.StringWriter
+
 
 class BasisPayPaymentActivity : AppCompatActivity() {
     var pb: ProgressBar? = null
@@ -89,12 +93,44 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                         }
                     }
                 }
+
+                override fun onReceivedSslError(
+                    view: WebView?,
+                    handler: SslErrorHandler?,
+                    error: SslError?
+                ) {
+                    handler!!.proceed()
+//                    super.onReceivedSslError(view, handler, error)
+                    println(error.toString())
+                    /*val builder: AlertDialog.Builder = AlertDialog.Builder(this@BasisPayPaymentActivity)
+                    var message = "SSL Certificate error."
+                    when (error!!.primaryError) {
+                        SslError.SSL_UNTRUSTED -> message =
+                            "The certificate authority is not trusted."
+
+                        SslError.SSL_EXPIRED -> message = "The certificate has expired."
+                        SslError.SSL_IDMISMATCH -> message = "The certificate Hostname mismatch."
+                        SslError.SSL_NOTYETVALID -> message = "The certificate is not yet valid."
+                    }
+                    message += " Do you want to continue anyway?"
+
+                    builder.setTitle("SSL Certificate Error")
+                    builder.setMessage(message)
+                    builder.setPositiveButton("continue",
+                        DialogInterface.OnClickListener { dialog, which -> handler!!.proceed() })
+                    builder.setNegativeButton("cancel",
+                        DialogInterface.OnClickListener { dialog, which -> handler!!.cancel() })
+                    val dialog: AlertDialog = builder.create()
+                    dialog.show()*/
+                }
             }
             val webSettings = webView!!.settings
             webSettings.javaScriptEnabled = true
             webView!!.settings.domStorageEnabled = true
             webSettings.javaScriptCanOpenWindowsAutomatically = true
             webSettings.domStorageEnabled = true
+            webSettings.loadWithOverviewMode = true
+            webSettings.useWideViewPort = true
             webView!!.clearHistory()
             webView!!.clearCache(true)
             webView!!.webChromeClient = object : WebChromeClient() {
