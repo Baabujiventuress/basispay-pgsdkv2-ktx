@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
 
         val pgPaymentInitializer =
             BasisPayPaymentInitializer(pgPaymentParams, this@MainActivity,
-//                response.getString(Const.RETURN_URL),
                 "Your Return URL",
                 false) //TEST = false or LIVE = true
         pgPaymentInitializer.initiatePaymentProcess()

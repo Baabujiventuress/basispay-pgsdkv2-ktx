@@ -1,8 +1,6 @@
 package com.basispaypg
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
@@ -69,7 +67,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
 
                 override fun onPageStarted(view: WebView, url: String, facIcon: Bitmap?) {
                     super.onPageStarted(view, url, facIcon)
-                    pb!!.visibility = View.VISIBLE
+                    pb!!.visibility = View.GONE
                     Log.i("log", "onPageStarted : $url")
                     runOnUiThread {
                         val pgResponse = JSONObject()
@@ -100,37 +98,59 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     error: SslError?
                 ) {
                     handler!!.proceed()
-//                    super.onReceivedSslError(view, handler, error)
-                    println(error.toString())
-                    /*val builder: AlertDialog.Builder = AlertDialog.Builder(this@BasisPayPaymentActivity)
-                    var message = "SSL Certificate error."
-                    when (error!!.primaryError) {
-                        SslError.SSL_UNTRUSTED -> message =
-                            "The certificate authority is not trusted."
-
-                        SslError.SSL_EXPIRED -> message = "The certificate has expired."
-                        SslError.SSL_IDMISMATCH -> message = "The certificate Hostname mismatch."
-                        SslError.SSL_NOTYETVALID -> message = "The certificate is not yet valid."
-                    }
-                    message += " Do you want to continue anyway?"
-
-                    builder.setTitle("SSL Certificate Error")
-                    builder.setMessage(message)
-                    builder.setPositiveButton("continue",
-                        DialogInterface.OnClickListener { dialog, which -> handler!!.proceed() })
-                    builder.setNegativeButton("cancel",
-                        DialogInterface.OnClickListener { dialog, which -> handler!!.cancel() })
-                    val dialog: AlertDialog = builder.create()
-                    dialog.show()*/
+                    super.onReceivedSslError(view, handler, error)
                 }
+
+                override fun shouldOverrideUrlLoading(
+                    view: WebView?,
+                    request: WebResourceRequest?
+                ): Boolean {
+                    var url = request!!.url.toString()
+                    if (url.startsWith("http://")) {
+                        try {
+                            //change protocol of url string
+                            url = url.replace("http://", "https://")
+
+                            view!!.loadUrl(url)
+                            return super.shouldOverrideUrlLoading(view, request)
+                        } catch (e: java.lang.Exception) {
+                            //an error occurred
+                            e.printStackTrace()
+                        }
+                    }
+                    return  false
+                }
+                /*override fun shouldInterceptRequest(
+                    view: WebView?,
+                    request: WebResourceRequest
+                ): WebResourceResponse? {
+                    var url = request.url.toString()
+                    println("Intercept"+url)
+                    if (url.startsWith("http://")) {
+                        try {
+                            //change protocol of url string
+                            url = url.replace("http://", "https://")
+
+                            //return modified response
+                            val httpsUrl = URL(url)
+                            val connection = httpsUrl.openConnection()
+                            return WebResourceResponse(
+                                connection.contentType,
+                                connection.contentEncoding,
+                                connection.getInputStream()
+                            )
+                        } catch (e: java.lang.Exception) {
+                            //an error occurred
+                        }
+                    }
+                    return super.shouldInterceptRequest(view, request)
+                }*/
             }
             val webSettings = webView!!.settings
             webSettings.javaScriptEnabled = true
             webView!!.settings.domStorageEnabled = true
             webSettings.javaScriptCanOpenWindowsAutomatically = true
             webSettings.domStorageEnabled = true
-            webSettings.loadWithOverviewMode = true
-            webSettings.useWideViewPort = true
             webView!!.clearHistory()
             webView!!.clearCache(true)
             webView!!.webChromeClient = object : WebChromeClient() {
@@ -142,7 +162,9 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                 ): Boolean {
                     return super.onJsAlert(view, url, message, result)
                 }
+
             }
+
             val postUrl: String?
             if (isProduction) {
                 //TODO LIVE MODE
