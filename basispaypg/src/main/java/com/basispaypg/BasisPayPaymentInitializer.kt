@@ -6,10 +6,12 @@ import android.text.TextUtils
 import android.widget.Toast
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.util.*
+import java.util.TreeMap
 
-class BasisPayPaymentInitializer constructor(paymentParams:BasisPayPaymentParams, activity:Activity,
-                                             sReturnUrl:String, isProduction:Boolean){
+class BasisPayPaymentInitializer constructor(
+    paymentParams: BasisPayPaymentParams, activity: Activity,
+    sReturnUrl: String, isProduction: Boolean
+) {
     private var context: Activity? = null
     private val params: HashMap<String?, String?> = LinkedHashMap<String?, String?>()
     private var returnUrl: String? = null
@@ -60,67 +62,63 @@ class BasisPayPaymentInitializer constructor(paymentParams:BasisPayPaymentParams
                                                 throw java.lang.RuntimeException("region missing")
                                             } else {
                                                 params["region"] = paymentParams.getRegion()
-                                                if (TextUtils.isEmpty(paymentParams.getCity())) {
-                                                    throw java.lang.RuntimeException("City missing")
+                                                if (TextUtils.isEmpty(paymentParams.getCountry())) {
+                                                    throw java.lang.RuntimeException("country missing")
                                                 } else {
-                                                    params["city"] = paymentParams.getCity()
-                                                    if (TextUtils.isEmpty(paymentParams.getCountry())) {
-                                                        throw java.lang.RuntimeException("country missing")
-                                                    } else {
-                                                        params["country"] =
-                                                            paymentParams.getCountry()
-                                                        if (paymentParams.getDeliveryAddress() != null) {
-                                                            params["deliveryAddress"] =
-                                                                paymentParams.getDeliveryAddress()
-                                                            if (paymentParams.getDeliveryCustomerName() != null) {
-                                                                params["deliveryName"] =
-                                                                    paymentParams.getDeliveryCustomerName()
-                                                                if (paymentParams.getDeliveryCustomerMobile() != null) {
-                                                                    params["deliveryMobile"] =
-                                                                        paymentParams.getDeliveryCustomerMobile()
-                                                                    if (paymentParams.getDeliveryPostalCode() != null) {
-                                                                        params["deliveryPostalCode"] =
-                                                                            paymentParams.getDeliveryPostalCode()
-                                                                        if (paymentParams.getDeliveryCity() != null) {
-                                                                            params["deliveryCity"] =
-                                                                                paymentParams.getDeliveryCity()
-                                                                            if (paymentParams.getDeliveryRegion() != null) {
-                                                                                params["deliveryRegion"] =
-                                                                                    paymentParams.getDeliveryRegion()
-                                                                                if (paymentParams.getDeliveryCountry() != null) {
-                                                                                    params["deliveryCountry"] =
-                                                                                        paymentParams.getDeliveryCountry()
-                                                                                } else {
-                                                                                    throw java.lang.RuntimeException(
-                                                                                        "delivery country missing"
-                                                                                    )
-                                                                                }
+                                                    params["country"] =
+                                                        paymentParams.getCountry()
+                                                    if (paymentParams.getDeliveryAddress() != null) {
+                                                        params["deliveryAddress"] =
+                                                            paymentParams.getDeliveryAddress()
+                                                        if (paymentParams.getDeliveryCustomerName() != null) {
+                                                            params["deliveryName"] =
+                                                                paymentParams.getDeliveryCustomerName()
+                                                            if (paymentParams.getDeliveryCustomerMobile() != null) {
+                                                                params["deliveryMobile"] =
+                                                                    paymentParams.getDeliveryCustomerMobile()
+                                                                if (paymentParams.getDeliveryPostalCode() != null) {
+                                                                    params["deliveryPostalCode"] =
+                                                                        paymentParams.getDeliveryPostalCode()
+                                                                    if (paymentParams.getDeliveryCity() != null) {
+                                                                        params["deliveryCity"] =
+                                                                            paymentParams.getDeliveryCity()
+                                                                        if (paymentParams.getDeliveryRegion() != null) {
+                                                                            params["deliveryRegion"] =
+                                                                                paymentParams.getDeliveryRegion()
+                                                                            if (paymentParams.getDeliveryCountry() != null) {
+                                                                                params["deliveryCountry"] =
+                                                                                    paymentParams.getDeliveryCountry()
                                                                             } else {
                                                                                 throw java.lang.RuntimeException(
-                                                                                    "delivery region missing"
+                                                                                    "delivery country missing"
                                                                                 )
                                                                             }
                                                                         } else {
                                                                             throw java.lang.RuntimeException(
-                                                                                "delivery city missing"
+                                                                                "delivery region missing"
                                                                             )
                                                                         }
                                                                     } else {
                                                                         throw java.lang.RuntimeException(
-                                                                            "delivery postalCode missing"
+                                                                            "delivery city missing"
                                                                         )
                                                                     }
                                                                 } else {
                                                                     throw java.lang.RuntimeException(
-                                                                        "delivery customerMobile missing"
+                                                                        "delivery postalCode missing"
                                                                     )
                                                                 }
                                                             } else {
-                                                                throw java.lang.RuntimeException("delivery customerName missing")
+                                                                throw java.lang.RuntimeException(
+                                                                    "delivery customerMobile missing"
+                                                                )
                                                             }
+                                                        } else {
+                                                            throw java.lang.RuntimeException("delivery customerName missing")
                                                         }
                                                     }
                                                 }
+
                                             }
                                         }
                                     }
@@ -132,7 +130,6 @@ class BasisPayPaymentInitializer constructor(paymentParams:BasisPayPaymentParams
             }
         }
     }
-
 
 
     fun initiatePaymentProcess() {

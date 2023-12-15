@@ -120,31 +120,6 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     }
                     return  false
                 }
-                /*override fun shouldInterceptRequest(
-                    view: WebView?,
-                    request: WebResourceRequest
-                ): WebResourceResponse? {
-                    var url = request.url.toString()
-                    println("Intercept"+url)
-                    if (url.startsWith("http://")) {
-                        try {
-                            //change protocol of url string
-                            url = url.replace("http://", "https://")
-
-                            //return modified response
-                            val httpsUrl = URL(url)
-                            val connection = httpsUrl.openConnection()
-                            return WebResourceResponse(
-                                connection.contentType,
-                                connection.contentEncoding,
-                                connection.getInputStream()
-                            )
-                        } catch (e: java.lang.Exception) {
-                            //an error occurred
-                        }
-                    }
-                    return super.shouldInterceptRequest(view, request)
-                }*/
             }
             val webSettings = webView!!.settings
             webSettings.javaScriptEnabled = true
