@@ -1,6 +1,7 @@
 package com.basispaypg
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.http.SslError
@@ -8,7 +9,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.webkit.*
+import android.webkit.JsResult
+import android.webkit.SslErrorHandler
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -17,12 +23,17 @@ import org.json.JSONObject
 import java.io.PrintWriter
 import java.io.StringWriter
 
+/**
+ * @author Vinoth
+ * Published By  BasisPay
+ * Modified on 08-MAY-2024
+ */
 
 class BasisPayPaymentActivity : AppCompatActivity() {
     var pb: ProgressBar? = null
     private var webView: WebView? = null
     var referenceNo: String? = null
-    var success:String? = null
+    var success: String? = null
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,14 +55,18 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     pb!!.visibility = View.GONE
                     Log.i("log", "onPageFinished : $url")
                     runOnUiThread {
-                        val checkUrl:String
-                        val appUrl:String
+                        val checkUrl: String
+                        val appUrl: String
                         if (isProduction) { //TODO LIVE MODE
-                            checkUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.CONTAIN_CHECK
-                            appUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.CONTAIN_RES
+                            checkUrl =
+                                BasisPayPGConstants.PRODUCTION_URL + BasisPayPGConstants.CONTAIN_CHECK
+                            appUrl =
+                                BasisPayPGConstants.PRODUCTION_URL + BasisPayPGConstants.CONTAIN_RES
                         } else { //TODO TEST MODE
-                            checkUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.CONTAIN_CHECK
-                            appUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.CONTAIN_RES
+                            checkUrl =
+                                BasisPayPGConstants.STAGING_URL + BasisPayPGConstants.CONTAIN_CHECK
+                            appUrl =
+                                BasisPayPGConstants.STAGING_URL + BasisPayPGConstants.CONTAIN_RES
                         }
                         if (url.contains(checkUrl)) {
                             val s =
@@ -97,8 +112,35 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                     handler: SslErrorHandler?,
                     error: SslError?
                 ) {
-                    handler!!.proceed()
-                    super.onReceivedSslError(view, handler, error)
+                    val builder = AlertDialog.Builder(this@BasisPayPaymentActivity)
+                    var message = when (error!!.primaryError) {
+                        SslError.SSL_EXPIRED -> "The certificate has expired."
+                        SslError.SSL_IDMISMATCH -> "The certificate Hostname mismatch."
+                        SslError.SSL_UNTRUSTED -> "The certificate authority is not trusted."
+                        SslError.SSL_DATE_INVALID -> "The certificate date is invalid."
+                        SslError.SSL_NOTYETVALID -> "The certificate is not yet valid."
+                        else -> "Unknown SSL error."
+                    }
+
+                    builder.setPositiveButton(
+                        "Continue"
+                    ) { dialog, which ->
+                        dialog.dismiss()
+                        handler!!.proceed()
+                    }
+                    builder.setNegativeButton(
+                        "Cancel"
+                    ) { dialog, which ->
+                        dialog.dismiss()
+                        handler!!.cancel()
+                        //Cancel Transaction
+                        cancelTransaction()
+                    }
+                    message += " Do you want to continue anyway?"
+                    builder.setTitle("Transaction Alert")
+                    builder.setMessage("Do you want to proceed transaction?")
+                    val dialog = builder.create()
+                    dialog.show()
                 }
 
                 override fun shouldOverrideUrlLoading(
@@ -118,7 +160,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                             e.printStackTrace()
                         }
                     }
-                    return  false
+                    return false
                 }
             }
             val webSettings = webView!!.settings
@@ -143,13 +185,13 @@ class BasisPayPaymentActivity : AppCompatActivity() {
             val postUrl: String?
             if (isProduction) {
                 //TODO LIVE MODE
-                postUrl = BasisPayPGConstants.PRODUCTION_URL+BasisPayPGConstants.END_POINT
+                postUrl = BasisPayPGConstants.PRODUCTION_URL + BasisPayPGConstants.END_POINT
                 Log.d("Production PostUrl", postUrl)
                 Log.d("postParamValues", postPaymentRequestParams!!)
                 webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
             } else {
                 //TODO TEST MODE
-                postUrl = BasisPayPGConstants.STAGING_URL+BasisPayPGConstants.END_POINT
+                postUrl = BasisPayPGConstants.STAGING_URL + BasisPayPGConstants.END_POINT
                 Log.d("Staging PostUrl", postUrl)
                 Log.d("postParamValues", postPaymentRequestParams!!)
                 webView!!.postUrl(postUrl, postPaymentRequestParams.toByteArray())
@@ -160,6 +202,29 @@ class BasisPayPaymentActivity : AppCompatActivity() {
             var7.printStackTrace(PrintWriter(sw))
             val exceptionAsString = sw.toString()
             Toast.makeText(this.baseContext, exceptionAsString, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun cancelTransaction() {
+        runOnUiThread {
+            val pgResponse = JSONObject()
+            try {
+                pgResponse.put("referenceNo", "TRANSACTION CANCELLED!")
+                pgResponse.put("success", "false")
+                val paymentResponseCallBackIntent = Intent()
+                paymentResponseCallBackIntent.putExtra(
+                    BasisPayPGConstants.PAYMENT_RESPONSE,
+                    pgResponse.toString()
+                )
+                this@BasisPayPaymentActivity.setResult(
+                    -1,
+                    paymentResponseCallBackIntent
+                )
+                finish()
+            } catch (e: JSONException) {
+                e.printStackTrace()
+            }
+
         }
     }
 
@@ -190,6 +255,7 @@ class BasisPayPaymentActivity : AppCompatActivity() {
         return super.onKeyDown(keyCode, event)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (webView!!.visibility == 0) {
             if (webView!!.canGoBack()) {

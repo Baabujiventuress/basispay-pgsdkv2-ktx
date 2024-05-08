@@ -1,5 +1,9 @@
 package com.basispaypg
-
+/**
+ * @author Vinoth
+ * Published By  BasisPay
+ * Modified on 08-MAY-2024
+ */
 class BasisPayPaymentParams {
     var apiKey: String? = null
     var secureHash: String? = null
