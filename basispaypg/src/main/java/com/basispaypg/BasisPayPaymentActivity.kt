@@ -2,8 +2,10 @@ package com.basispaypg
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.net.http.SslError
 import android.os.Bundle
 import android.util.Log
@@ -26,7 +28,7 @@ import java.io.StringWriter
 /**
  * @author Vinoth
  * Published By  BasisPay
- * Modified on 08-MAY-2024
+ * Modified on 13-AUG-2024
  */
 
 class BasisPayPaymentActivity : AppCompatActivity() {
@@ -124,13 +126,13 @@ class BasisPayPaymentActivity : AppCompatActivity() {
 
                     builder.setPositiveButton(
                         "Continue"
-                    ) { dialog, which ->
+                    ) { dialog, _ ->
                         dialog.dismiss()
                         handler!!.proceed()
                     }
                     builder.setNegativeButton(
                         "Cancel"
-                    ) { dialog, which ->
+                    ) { dialog, _ ->
                         dialog.dismiss()
                         handler!!.cancel()
                         //Cancel Transaction
@@ -158,6 +160,41 @@ class BasisPayPaymentActivity : AppCompatActivity() {
                         } catch (e: java.lang.Exception) {
                             //an error occurred
                             e.printStackTrace()
+                        }
+                    }
+                    if (url.startsWith("upi:")) {
+                        try {
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setData(Uri.parse(url))
+                            startActivity(intent)
+                            return true
+                        } catch (e: ActivityNotFoundException) {
+                            e.printStackTrace()
+                            Log.d("TAG", e.toString())
+                            Toast.makeText(
+                                this@BasisPayPaymentActivity,
+                                "UPI app were not found!", Toast.LENGTH_SHORT
+                            ).show()
+                            val builder = AlertDialog.Builder(this@BasisPayPaymentActivity)
+                            builder.setPositiveButton(
+                                "Yes"
+                            ) { dialog, _ ->
+                                dialog.dismiss()
+                                //Cancel Transaction
+                                cancelTransaction()
+                            }
+                            builder.setNegativeButton(
+                                "Cancel"
+                            ) { dialog, _ ->
+                                dialog.dismiss()
+                                //Cancel Transaction
+                                cancelTransaction()
+                            }
+                            builder.setTitle("Alert")
+                            builder.setMessage("UPI apps were not found this device! Do you want to cancel transaction?")
+                            val dialog = builder.create()
+                            dialog.setCancelable(false)
+                            dialog.show()
                         }
                     }
                     return false

@@ -25,6 +25,9 @@ class BasisPayPaymentParams {
     var deliveryRegion: String? = null
     var deliveryCountry: String? = null
 
+    var paymentMethod: String? = null
+    var paymentMode: String? = null
+
     fun BasisPayPaymentParams() {}
 
     @JvmName("apiKey")
@@ -206,4 +209,25 @@ class BasisPayPaymentParams {
     fun setDeliveryCountry(deliveryCountry: String?) {
         this.deliveryCountry = deliveryCountry
     }
+
+    @JvmName("paymentMethod")
+    fun setPaymentMethod(paymentMethod: String?){
+        this.paymentMethod = paymentMethod
+    }
+
+    @JvmName("paymentMethod")
+    fun getPaymentMethod(): String? {
+        return paymentMethod
+    }
+
+    @JvmName("paymentMode")
+    fun setPaymentMode(paymentMode: String?){
+        this.paymentMode = paymentMode
+    }
+
+    @JvmName("paymentMode")
+    fun getPaymentMode(): String? {
+        return paymentMode
+    }
+
 }

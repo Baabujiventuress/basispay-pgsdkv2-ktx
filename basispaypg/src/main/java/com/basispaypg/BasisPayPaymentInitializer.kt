@@ -94,37 +94,18 @@ class BasisPayPaymentInitializer constructor(
                                                                             if (paymentParams.getDeliveryCountry() != null) {
                                                                                 params["deliveryCountry"] =
                                                                                     paymentParams.getDeliveryCountry()
-                                                                            } else {
-                                                                                throw java.lang.RuntimeException(
-                                                                                    "delivery country missing"
-                                                                                )
+                                                                                params["paymentMethod"] =
+                                                                                    paymentParams.getPaymentMethod()
+                                                                                params["paymentMode"] =
+                                                                                    paymentParams.getPaymentMode()
                                                                             }
-                                                                        } else {
-                                                                            throw java.lang.RuntimeException(
-                                                                                "delivery region missing"
-                                                                            )
                                                                         }
-                                                                    } else {
-                                                                        throw java.lang.RuntimeException(
-                                                                            "delivery city missing"
-                                                                        )
                                                                     }
-                                                                } else {
-                                                                    throw java.lang.RuntimeException(
-                                                                        "delivery postalCode missing"
-                                                                    )
                                                                 }
-                                                            } else {
-                                                                throw java.lang.RuntimeException(
-                                                                    "delivery customerMobile missing"
-                                                                )
                                                             }
-                                                        } else {
-                                                            throw java.lang.RuntimeException("delivery customerName missing")
                                                         }
                                                     }
                                                 }
-
                                             }
                                         }
                                     }
