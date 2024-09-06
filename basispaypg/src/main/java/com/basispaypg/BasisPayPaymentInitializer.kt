@@ -73,6 +73,14 @@ class BasisPayPaymentInitializer constructor(
                                                 } else {
                                                     params["country"] =
                                                         paymentParams.getCountry()
+                                                    if (paymentParams.getPaymentMethod() != null) {
+                                                        params["paymentMethod"] =
+                                                            paymentParams.getPaymentMethod()
+                                                    }
+                                                    if (paymentParams.getPaymentMode() != null) {
+                                                        params["paymentMode"] =
+                                                            paymentParams.getPaymentMode()
+                                                    }
                                                     if (paymentParams.getDeliveryAddress() != null) {
                                                         params["deliveryAddress"] =
                                                             paymentParams.getDeliveryAddress()
@@ -94,10 +102,6 @@ class BasisPayPaymentInitializer constructor(
                                                                             if (paymentParams.getDeliveryCountry() != null) {
                                                                                 params["deliveryCountry"] =
                                                                                     paymentParams.getDeliveryCountry()
-                                                                                params["paymentMethod"] =
-                                                                                    paymentParams.getPaymentMethod()
-                                                                                params["paymentMode"] =
-                                                                                    paymentParams.getPaymentMode()
                                                                             }
                                                                         }
                                                                     }
